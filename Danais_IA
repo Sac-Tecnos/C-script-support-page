@@ -1,0 +1,60 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class IA_Danais : MonoBehaviour {
+
+    private bool Avistado = false;
+    public Transform jugador;
+
+    public GameObject avatar_Danais;
+    private Animator anim_Danas;
+    private UnityEngine.AI.NavMeshAgent nav_Danais;
+
+
+    void Start()
+    {
+        anim_Danas = avatar_Danais.GetComponent<Animator>();
+        nav_Danais = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        jugador = GetComponent<Transform>();
+    }
+
+    void OnTriggerStay()
+    {
+        Debug.DrawLine(transform.position,jugador.transform.position, Color.red);
+        RaycastHit visto;
+        if (Physics.Raycast(transform.position,transform.forward, out visto))
+        {
+            if (visto.collider.tag == "Player")
+            {
+                Avistado = false;
+            }
+        }
+    }
+
+    void OnTriggerExit()
+    {
+        Avistado = true;
+    }
+
+
+    void Update()
+    {
+        if(Avistado == false)
+        {
+            anim_Danas.SetBool("Idle", true);
+            Vector3 randomPos = Random.insideUnitSphere * 20f;
+            UnityEngine.AI.NavMeshHit navHit;
+            UnityEngine.AI.NavMesh.SamplePosition(transform.position + randomPos, out navHit, 20f, UnityEngine.AI.NavMesh.AllAreas);
+            nav_Danais.SetDestination(navHit.position);
+        }
+
+        if (Avistado == true)
+        {
+            nav_Danais.SetDestination(jugador.transform.position);
+            anim_Danas.SetBool("Idle", false);
+            anim_Danas.SetBool("Cazar", true);
+        }
+    }
+}
